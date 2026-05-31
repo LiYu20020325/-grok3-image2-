@@ -1,0 +1,38 @@
+{
+  "name": "wuniao_sora2-AI-1.6-V1",
+  "private": true,
+  "version": "4.2.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:serve": "vite --host",
+    "dev:restart": "node scripts/dev-server.js",
+    "dev:auto": "nodemon --watch App.tsx --watch components --watch hooks --watch services --watch utils --watch src --ext ts,tsx,js,jsx,ts,tsx,css --signal SIGTERM --exec \"node scripts/dev-server.js\"",
+    "regress:sora": "node scripts/regress-sora-parse.ts",
+    "build": "vite build",
+    "preview": "vite preview --host --port 5015"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "katex": "^0.16.11",
+    "lucide-react": "^0.554.0",
+    "react-dom": "^19.2.0",
+    "react-markdown": "^9.0.1",
+    "react": "^19.2.0",
+    "rehype-katex": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.20",
+    "nodemon": "^3.1.7",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

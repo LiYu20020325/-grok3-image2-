@@ -1,0 +1,796 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { generateResponse } from '../services/geminiService';
+import { generateOpenAiImage } from '../services/providers/openaiImages';
+import {
+  submitKlingVideoTask,
+  waitForKlingVideo,
+} from '../services/providers/klingVideo';
+import { ApiMode, GeminiImageSettings, LaneState, Model, ModelProvider, Role } from '../types';
+import { createDefaultLane, extractErrorCodeFromText, extractProgressFromText } from '../utils/lane';
+import { isVideoReadyFromText } from '../utils/isVideoReady';
+
+const normalizeModelIdValue = (value: unknown): string => {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && 'id' in value && typeof (value as any).id !== 'undefined') {
+    return String((value as any).id);
+  }
+  return String(value ?? '');
+};
+
+const sleepWithAbort = (ms: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new Error('请求已取消'));
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      cleanup();
+      resolve();
+    }, Math.max(0, ms));
+    const onAbort = () => {
+      cleanup();
+      reject(new Error('请求已取消'));
+    };
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
+
+interface UseLanesOptions {
+  selectedModelId: string;
+  availableModels: Model[];
+  apiMode: ApiMode;
+  openaiApiKey: string;
+  geminiApiKey: string;
+  openaiApiUrl: string;
+  geminiApiUrl: string;
+  geminiKeyRotationEnabled?: boolean;
+  geminiKeyPool?: { id: string; apiKey: string; enabled?: boolean }[];
+  geminiImageSettings?: GeminiImageSettings;
+  geminiEnterpriseEnabled?: boolean;
+  geminiEnterpriseProjectId?: string;
+  geminiEnterpriseLocation?: string;
+  geminiEnterpriseToken?: string;
+  isStreamEnabled: boolean;
+  concurrencyIntervalSec?: number;
+  maxLaneCount?: number;
+  onRequireSidebarOpen?: () => void;
+  /** Returns the currently bound history/session id for associating background updates. */
+  getCurrentSessionId?: () => string | null;
+  /**
+   * When a lane update arrives after the UI has switched to another session,
+   * apply it to the background session (usually by writing back into history storage).
+   */
+  onBackgroundLaneUpdate?: (sessionId: string, laneId: string, updater: (prev: LaneState) => LaneState) => void;
+  initialLanes?: LaneState[];
+  initialActiveLaneId?: string | null;
+  initialLaneCount?: number;
+}
+
+export const useLanes = (options: UseLanesOptions) => {
+  const {
+    selectedModelId,
+    availableModels,
+    apiMode,
+    openaiApiKey,
+    geminiApiKey,
+    openaiApiUrl,
+    geminiApiUrl,
+    geminiKeyRotationEnabled,
+    geminiKeyPool,
+    geminiImageSettings,
+    geminiEnterpriseEnabled,
+    geminiEnterpriseProjectId,
+    geminiEnterpriseLocation,
+    geminiEnterpriseToken,
+    isStreamEnabled,
+    concurrencyIntervalSec,
+    maxLaneCount,
+    onRequireSidebarOpen,
+    getCurrentSessionId,
+    onBackgroundLaneUpdate,
+    initialLanes,
+    initialActiveLaneId,
+    initialLaneCount,
+  } = options;
+
+  const resolvedMaxLaneCount = (() => {
+    const n = typeof maxLaneCount === 'number' && Number.isFinite(maxLaneCount) ? Math.floor(maxLaneCount) : 20;
+    return Math.max(1, Math.min(999, n));
+  })();
+
+  const concurrencyIntervalMs = (() => {
+    const n =
+      typeof concurrencyIntervalSec === 'number' && Number.isFinite(concurrencyIntervalSec)
+        ? concurrencyIntervalSec
+        : 0;
+    const clamped = Math.max(0, Math.min(60, n));
+    return Math.round(clamped * 1000);
+  })();
+
+  const [lanes, setLanes] = useState<LaneState[]>(
+    initialLanes && initialLanes.length > 0
+      ? initialLanes
+      : [
+          createDefaultLane(uuidv4(), selectedModelId, 1),
+          createDefaultLane(uuidv4(), selectedModelId, 2),
+        ]
+  );
+
+  const [laneCountInput, setLaneCountInput] = useState<string>(
+    initialLaneCount ? String(initialLaneCount) : '2'
+  );
+  const [activeLaneId, setActiveLaneId] = useState<string | null>(
+    initialActiveLaneId ?? null
+  );
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [showClearConfirm] = useState(false);
+  const abortControllersRef = useRef<Record<string, AbortController>>({});
+  const runIdRef = useRef<string | null>(null);
+  const laneRunStateRef = useRef<Record<string, { runId: string; started: boolean; botMessageId: string }>>({});
+
+  const stopRunning = (laneIds?: string[]) => {
+    const ids = Array.isArray(laneIds) && laneIds.length > 0 ? laneIds : Object.keys(abortControllersRef.current);
+    if (ids.length === 0) return;
+
+    ids.forEach((id) => {
+      try {
+        abortControllersRef.current[id]?.abort();
+      } catch {
+        // ignore
+      }
+      delete abortControllersRef.current[id];
+    });
+
+    const idSet = new Set(ids);
+    setLanes((prev) =>
+      prev.map((lane) => (idSet.has(lane.id) ? { ...lane, isThinking: false } : lane))
+    );
+  };
+
+  const normalizeProvider = (provider?: ModelProvider): ModelProvider => (provider === 'gemini' ? 'gemini' : 'openai');
+
+  const findModelById = (modelId: string, preferredProvider?: ModelProvider) => {
+    const matches = availableModels.filter((m) => m.id === modelId);
+    if (matches.length === 0) return undefined;
+    if (preferredProvider) {
+      const preferred = matches.find((m) => normalizeProvider(m.provider) === preferredProvider);
+      if (preferred) return preferred;
+    }
+    return matches[0];
+  };
+
+  const hasModelForProvider = (modelId: string, provider: ModelProvider) =>
+    availableModels.some((m) => m.id === modelId && normalizeProvider(m.provider) === provider);
+
+  const resolveModelProvider = (modelId: string, preferredProvider?: ModelProvider): ModelProvider => {
+    const m = findModelById(modelId, preferredProvider);
+    return normalizeProvider(m?.provider);
+  };
+
+  const resolveFallbackModelId = (targetProvider: ModelProvider): string | null => {
+    if (selectedModelId && hasModelForProvider(selectedModelId, targetProvider)) {
+      return selectedModelId;
+    }
+    const candidate = availableModels.find((m) => normalizeProvider(m.provider) === targetProvider);
+    return candidate?.id || availableModels[0]?.id || null;
+  };
+
+  useEffect(() => {
+    setLaneCountInput(String(lanes.length));
+  }, [lanes.length]);
+
+  const stopAllRunning = () => {
+    stopRunning();
+  };
+
+  const getQueuedLaneIds = () => {
+    const runId = runIdRef.current;
+    if (!runId) return [];
+    return Object.keys(laneRunStateRef.current).filter((laneId) => {
+      const state = laneRunStateRef.current[laneId];
+      return state && state.runId === runId && !state.started;
+    });
+  };
+
+  const cancelQueuedLanes = useCallback(() => {
+    const queuedIds = getQueuedLaneIds();
+    if (queuedIds.length === 0) return 0;
+    const queuedSet = new Set(queuedIds);
+    const now = Date.now();
+    const cancelText = '已终止排队';
+
+    queuedIds.forEach((id) => {
+      try {
+        abortControllersRef.current[id]?.abort();
+      } catch {
+        // ignore
+      }
+      delete abortControllersRef.current[id];
+    });
+
+    setLanes((prev) =>
+      prev.map((lane) => {
+        if (!queuedSet.has(lane.id)) return lane;
+        const state = laneRunStateRef.current[lane.id];
+        const botId = state?.botMessageId;
+        if (!botId) {
+          return { ...lane, isThinking: false };
+        }
+        const msgs = [...lane.messages];
+        const idx = msgs.findIndex((m) => m.id === botId);
+        if (idx !== -1) {
+          msgs[idx] = { ...msgs[idx], text: cancelText, timestamp: now };
+        } else {
+          msgs.push({ id: botId, role: Role.MODEL, text: cancelText, timestamp: now });
+        }
+        return { ...lane, isThinking: false, messages: msgs };
+      })
+    );
+
+    queuedIds.forEach((id) => {
+      delete laneRunStateRef.current[id];
+    });
+
+    return queuedIds.length;
+  }, []);
+
+  const normalizePresetLanes = (preset?: LaneState[]) =>
+    preset?.map((lane) => ({
+      ...lane,
+      isThinking: false,
+      model: normalizeModelIdValue((lane as any).model),
+    }));
+
+  // Keep lane models aligned with the currently selected API provider.
+  useEffect(() => {
+    const targetProvider: ModelProvider = apiMode === 'gemini' ? 'gemini' : 'openai';
+    const fallbackId = resolveFallbackModelId(targetProvider);
+    if (!fallbackId) return;
+
+    setLanes((prev) => {
+      let changed = false;
+      const next = prev.map((lane) => {
+        // Never interrupt active generations or existing conversations when switching providers.
+        // Only update idle/empty lanes so the current run can finish unaffected.
+        if (lane.isThinking || lane.messages.length > 0) {
+          return lane;
+        }
+        const laneProvider = resolveModelProvider(lane.model, targetProvider);
+        if (laneProvider !== targetProvider) {
+          changed = true;
+          return { ...lane, model: fallbackId, error: undefined };
+        }
+        return lane;
+      });
+      return changed ? next : prev;
+    });
+  }, [apiMode, availableModels, selectedModelId]);
+
+  const updateLaneCount = (value: string) => {
+    const numeric = value.replace(/[^0-9]/g, '');
+    if (numeric === '') {
+      setLaneCountInput('');
+      return;
+    }
+
+    let count = parseInt(numeric, 10);
+    if (isNaN(count)) return;
+    if (count < 1) count = 1;
+    if (count > resolvedMaxLaneCount) count = resolvedMaxLaneCount;
+
+    setLaneCountInput(String(count));
+
+    setLanes((prev) => {
+      if (count > prev.length) {
+        const toAdd = count - prev.length;
+        const newLanes: LaneState[] = [];
+        for (let i = 0; i < toAdd; i++) {
+          newLanes.push(
+            createDefaultLane(
+              uuidv4(),
+              selectedModelId,
+              prev.length + i + 1,
+              hasStartedChat && prev[0] ? [...prev[0].messages] : []
+            )
+          );
+        }
+        return [...prev, ...newLanes];
+      } else if (count < prev.length) {
+        const newLanes = prev.slice(0, count);
+        if (activeLaneId && !newLanes.find((l) => l.id === activeLaneId)) {
+          setActiveLaneId(newLanes.length > 0 ? newLanes[0].id : null);
+        }
+        return newLanes;
+      }
+      return prev;
+    });
+  };
+
+  const setAllModels = (modelId: string) => {
+    // Only update idle lanes; leave generating or non-empty lanes unchanged.
+    setLanes((prev) =>
+      prev.map((lane) => {
+        if (lane.isThinking || lane.messages.length > 0) {
+          return lane;
+        }
+        return { ...lane, model: modelId };
+      })
+    );
+  };
+
+  const removeLane = (id: string) => {
+    if (lanes.length <= 1) return;
+    const newLanes = lanes.filter((l) => l.id !== id);
+    setLanes(newLanes);
+    if (activeLaneId === id) {
+      setActiveLaneId(newLanes.length > 0 ? newLanes[0].id : null);
+    }
+  };
+
+  const updateModel = (id: string, model: string) => {
+    setLanes((prev) => prev.map((l) => (l.id === id ? { ...l, model } : l)));
+  };
+
+  const startNewChat = (presetLanes?: LaneState[], abortRunning: boolean = false) => {
+    if (abortRunning) {
+      stopRunning(lanes.map((l) => l.id));
+    }
+    setHasStartedChat(false);
+    setActiveLaneId(null);
+    const normalized = normalizePresetLanes(presetLanes);
+    if (normalized && normalized.length > 0) {
+      setLanes(normalized);
+      return;
+    }
+    setLanes([
+      createDefaultLane(uuidv4(), selectedModelId, 1),
+      createDefaultLane(uuidv4(), selectedModelId, 2),
+    ]);
+  };
+
+  const clearAllChats = () => {
+    setHasStartedChat(false);
+    stopAllRunning();
+    setLanes((prev) =>
+      prev.map((l, idx) => ({
+        ...l,
+        messages: [],
+        isThinking: false,
+        progress: 0,
+        error: undefined,
+        errorCode: undefined,
+        // 当用户点击“清空”时，将 lane 的模型同步到当前选中的模型，避免后续切换模型仍残留旧模型。
+        model: selectedModelId || l.model,
+        id: l.id || uuidv4(),
+        name: l.name || `Model ${idx + 1}`,
+      }))
+    );
+    setActiveLaneId((prev) => {
+      const next = lanes[0]?.id || prev || null;
+      return next;
+    });
+  };
+
+  // Backward-compatible placeholder; main app may override clearing behavior.
+  const confirmAndClearChats = () => {
+    clearAllChats();
+  };
+
+  const handleSend = useCallback(
+    async (text: string, images: string[] = []) => {
+      const normalizedImages = (images || []).filter(Boolean);
+      if (!text.trim() && normalizedImages.length === 0) return;
+
+      const sessionId = getCurrentSessionId?.() || null;
+      const targetProvider: ModelProvider = apiMode === 'gemini' ? 'gemini' : 'openai';
+      const fallbackModelId = resolveFallbackModelId(targetProvider);
+      if (!fallbackModelId) return;
+
+      // Normalize lane models to match the active provider before sending.
+      let normalizedLanes = lanes;
+      let changed = false;
+      normalizedLanes = lanes.map((lane) => {
+        const laneProvider = resolveModelProvider(lane.model, targetProvider);
+        if (laneProvider !== targetProvider) {
+          changed = true;
+          return { ...lane, model: fallbackModelId, error: undefined };
+        }
+        return lane;
+      });
+      if (changed) {
+        setLanes(normalizedLanes);
+      }
+
+      setHasStartedChat(true);
+      const runId = uuidv4();
+      runIdRef.current = runId;
+      laneRunStateRef.current = {};
+      const userMessageId = uuidv4();
+      const timestamp = Date.now();
+
+      setLanes((prev) =>
+        prev.map((lane) => ({
+          ...lane,
+          messages: [
+            ...lane.messages,
+            {
+              id: userMessageId,
+              role: Role.USER,
+              text,
+              timestamp,
+              images: normalizedImages.length > 1 ? normalizedImages : undefined,
+              image: normalizedImages.length === 1 ? normalizedImages[0] : undefined,
+            },
+          ],
+          isThinking: true,
+          progress: 0,
+          error: undefined,
+          errorCode: undefined,
+        }))
+      );
+
+      const poolKeys = Array.isArray(geminiKeyPool)
+        ? geminiKeyPool
+            .map((k) => (k.apiKey || '').trim())
+            .filter(Boolean)
+        : [];
+      const rotationSeed =
+        geminiKeyRotationEnabled && poolKeys.length > 1 ? Math.floor(Math.random() * poolKeys.length) : 0;
+      const resolveGeminiApiKey = (laneIndex: number) => {
+        if (geminiEnterpriseEnabled) {
+          return (geminiApiKey || '').trim();
+        }
+
+        if (poolKeys.length === 0) {
+          return (geminiApiKey || '').trim();
+        }
+
+        if (!geminiKeyRotationEnabled || poolKeys.length === 1) {
+          return poolKeys[0];
+        }
+
+        const idx = (laneIndex + rotationSeed) % poolKeys.length;
+        return poolKeys[idx] || poolKeys[0];
+      };
+
+      const resolveOpenaiApi = () => ({
+        apiKey: (openaiApiKey || '').trim(),
+        apiUrl: (openaiApiUrl || '').trim(),
+      });
+
+      const promises = normalizedLanes.map(async (lane, laneIndex) => {
+        const laneId = lane.id;
+        let botMessageText = '';
+        const botMessageId = uuidv4();
+        let wasAborted = false;
+        const laneStartTime = Date.now();
+        const normalizedModelId = normalizeModelIdValue((lane as any).model);
+        const isSoraVideoModel = normalizedModelId.toLowerCase().includes('sora-video');
+        const isKlingVideoModel = normalizedModelId.toLowerCase() === 'kling-video-o1';
+        const isGptImageModel = normalizedModelId === 'gpt-image-2' || normalizedModelId === 'gpt-image-2-all';
+        const requestStream = Boolean(isStreamEnabled || isSoraVideoModel || isKlingVideoModel);
+        let isFirstChunk = true;
+        const controller = new AbortController();
+        abortControllersRef.current[laneId] = controller;
+        laneRunStateRef.current[laneId] = { runId, started: false, botMessageId };
+
+        const applyLaneUpdate = (updater: (prev: LaneState) => LaneState) => {
+          setLanes((prev) => {
+            let found = false;
+            const next = prev.map((l) => {
+              if (l.id !== laneId) return l;
+              found = true;
+              return updater(l);
+            });
+            if (found) return next;
+            if (sessionId && onBackgroundLaneUpdate) {
+              onBackgroundLaneUpdate(sessionId, laneId, updater);
+            }
+            return prev;
+          });
+        };
+
+        applyLaneUpdate((l) => ({
+          ...l,
+          messages: [...l.messages, { id: botMessageId, role: Role.MODEL, text: '', timestamp: Date.now() }],
+        }));
+
+        try {
+          if (concurrencyIntervalMs > 0 && laneIndex > 0) {
+            await sleepWithAbort(concurrencyIntervalMs * laneIndex, controller.signal);
+          }
+          if (controller.signal.aborted) {
+            return;
+          }
+          const state = laneRunStateRef.current[laneId];
+          if (state && state.runId === runId) {
+            state.started = true;
+          }
+          const modelProvider: ModelProvider = targetProvider;
+          const openaiApi = resolveOpenaiApi();
+          const activeApiKey = modelProvider === 'gemini' ? resolveGeminiApiKey(laneIndex) : openaiApi.apiKey;
+          const activeApiBaseUrl = modelProvider === 'gemini' ? (geminiApiUrl && geminiApiUrl.trim()) || '' : openaiApi.apiUrl;
+
+          // 可灵视频生成特殊处理
+          if (isKlingVideoModel) {
+            const openaiApi = resolveOpenaiApi();
+            if (!openaiApi.apiKey) {
+              throw new Error('未配置 OpenAI API Key，请在设置中填写');
+            }
+
+            // 构建图片参考列表
+            // 规则：第一张可作为首帧，第二张可作为尾帧（仅当总张数<=2时），其他不设置type
+            const imageList = normalizedImages.map((img, index) => {
+              if (index === 0) {
+                return { imageUrl: img, type: 'first_frame' as const };
+              }
+              // 只有2张图片时，第二张可以作为尾帧
+              if (index === 1 && normalizedImages.length === 2) {
+                return { imageUrl: img, type: 'end_frame' as const };
+              }
+              // 其他图片不设置 type
+              return { imageUrl: img };
+            });
+
+            // 提交任务
+            const taskResponse = await submitKlingVideoTask({
+              prompt: text,
+              apiKey: openaiApi.apiKey,
+              apiBase: openaiApi.apiUrl,
+              aspectRatio: '16:9',
+              mode: 'pro',
+              duration: 5,
+              imageList: imageList.length > 0 ? imageList : undefined,
+            });
+
+            botMessageText = `视频生成任务已提交\n任务ID: ${taskResponse.data.task_id}\n状态: ${taskResponse.data.task_status}`;
+
+            applyLaneUpdate((l) => {
+              const msgs = [...l.messages];
+              const lastMsgIndex = msgs.findIndex((m) => m.id === botMessageId);
+              if (lastMsgIndex !== -1) {
+                msgs[lastMsgIndex] = { ...msgs[lastMsgIndex], text: botMessageText };
+              }
+              return { ...l, messages: msgs, progress: 10 };
+            });
+
+            // 轮询等待结果
+            let videoResult;
+            try {
+              videoResult = await waitForKlingVideo(
+                taskResponse.data.task_id,
+                openaiApi.apiKey,
+                openaiApi.apiUrl,
+                (status) => {
+                  console.log('[Kling] Status update:', status);
+                  const progressMap: Record<string, number> = {
+                    submitted: 20,
+                    processing: 50,
+                    succeed: 100,
+                    failed: 0,
+                  };
+                  applyLaneUpdate((l) => ({
+                    ...l,
+                    progress: progressMap[status] ?? l.progress,
+                  }));
+                },
+                controller.signal
+              );
+            } catch (pollErr: any) {
+              console.error('[Kling] Polling error:', pollErr);
+              botMessageText = `视频生成轮询失败: ${pollErr?.message || '未知错误'}`;
+              applyLaneUpdate((l) => {
+                const msgs = [...l.messages];
+                const lastMsgIndex = msgs.findIndex((m) => m.id === botMessageId);
+                if (lastMsgIndex !== -1) {
+                  msgs[lastMsgIndex] = { ...msgs[lastMsgIndex], text: botMessageText };
+                }
+                return { ...l, messages: msgs, isThinking: false, progress: 0 };
+              });
+              return;
+            }
+
+            if (videoResult.videoUrl) {
+              botMessageText = `视频生成完成!\n\n${videoResult.videoUrl}`;
+            } else {
+              botMessageText = '视频生成失败';
+            }
+
+            applyLaneUpdate((l) => {
+              const msgs = [...l.messages];
+              const lastMsgIndex = msgs.findIndex((m) => m.id === botMessageId);
+              if (lastMsgIndex !== -1) {
+                msgs[lastMsgIndex] = { ...msgs[lastMsgIndex], text: botMessageText };
+              }
+              return { ...l, messages: msgs, isThinking: false, progress: videoResult.videoUrl ? 100 : 0 };
+            });
+
+            return;
+          }
+
+          // gpt-image-2 图生图：通过 /v1/images/edits 端点
+          if (isGptImageModel && normalizedImages.length > 0) {
+            const openaiApi = resolveOpenaiApi();
+            if (!openaiApi.apiKey) {
+              throw new Error('未配置 OpenAI API Key，请在设置中填写');
+            }
+            applyLaneUpdate((l) => ({ ...l, progress: 10 }));
+            const imageUrl = await generateOpenAiImage({
+              model: normalizedModelId,
+              prompt: text || '编辑图片',
+              apiKey: openaiApi.apiKey,
+              apiBase: openaiApi.apiUrl,
+              imageDataUrls: normalizedImages,
+            });
+            botMessageText = imageUrl;
+            applyLaneUpdate((l) => {
+              const msgs = [...l.messages];
+              const lastMsgIndex = msgs.findIndex((m) => m.id === botMessageId);
+              if (lastMsgIndex !== -1) {
+                msgs[lastMsgIndex] = { ...msgs[lastMsgIndex], text: botMessageText };
+              }
+              return { ...l, messages: msgs, isThinking: false, progress: 100 };
+            });
+            return;
+          }
+
+          await generateResponse(
+            normalizedModelId,
+            lane.messages,
+            text,
+            (chunk) => {
+              if (requestStream) {
+                botMessageText += chunk;
+              } else {
+                botMessageText = chunk;
+              }
+
+              applyLaneUpdate((l) => {
+                let updatedIsThinking = l.isThinking;
+                if (isFirstChunk && requestStream) {
+                  updatedIsThinking = false;
+                  isFirstChunk = false;
+                }
+
+                const msgs = [...l.messages];
+                const lastMsgIndex = msgs.findIndex((m) => m.id === botMessageId);
+                if (lastMsgIndex !== -1) {
+                  msgs[lastMsgIndex] = { ...msgs[lastMsgIndex], text: botMessageText };
+                } else {
+                  msgs.push({ id: botMessageId, role: Role.MODEL, text: botMessageText, timestamp: Date.now() });
+                }
+
+                const progress = extractProgressFromText(botMessageText);
+                const errorCode = extractErrorCodeFromText(botMessageText);
+                const videoReady = isSoraVideoModel && isVideoReadyFromText(botMessageText);
+                const nextProgress = videoReady ? 100 : progress !== null ? progress : l.progress;
+
+                return {
+                  ...l,
+                  messages: msgs,
+                  isThinking: videoReady ? false : updatedIsThinking,
+                  progress: nextProgress,
+                  errorCode: errorCode !== null ? errorCode : l.errorCode,
+                };
+              });
+            },
+            activeApiKey,
+            requestStream,
+            normalizedImages.length ? normalizedImages : undefined,
+            activeApiBaseUrl,
+            modelProvider,
+            controller.signal,
+            {
+              geminiImageSettings,
+              geminiEnterpriseEnabled,
+              geminiEnterpriseProjectId,
+              geminiEnterpriseLocation,
+              geminiEnterpriseToken,
+            }
+          );
+        } catch (err: any) {
+          if (controller.signal.aborted) {
+            wasAborted = true;
+            return;
+          }
+          const message = err?.message ? String(err.message) : String(err);
+          const status =
+            typeof err?.status === 'number'
+              ? err.status
+              : typeof err?.statusCode === 'number'
+              ? err.statusCode
+              : extractErrorCodeFromText(message);
+          applyLaneUpdate((l) => ({
+            ...l,
+            error: message,
+            errorCode: typeof status === 'number' ? status : l.errorCode,
+          }));
+        } finally {
+          if (wasAborted || controller.signal.aborted) {
+            applyLaneUpdate((l) => ({ ...l, isThinking: false }));
+            delete abortControllersRef.current[laneId];
+            const state = laneRunStateRef.current[laneId];
+            if (state && state.runId === runId) {
+              delete laneRunStateRef.current[laneId];
+            }
+            return;
+          }
+          const finishedAt = Date.now();
+          const duration = finishedAt - laneStartTime;
+
+          applyLaneUpdate((l) => {
+            const msgs = [...l.messages];
+            const idx = msgs.findIndex((m) => m.id === botMessageId);
+            if (idx !== -1) {
+              msgs[idx] = { ...msgs[idx], generationDurationMs: duration };
+            } else {
+              msgs.push({
+                id: botMessageId,
+                role: Role.MODEL,
+                text: botMessageText,
+                timestamp: Date.now(),
+                generationDurationMs: duration,
+              });
+            }
+
+            return { ...l, isThinking: false, progress: 100, messages: msgs };
+          });
+          delete abortControllersRef.current[laneId];
+          const state = laneRunStateRef.current[laneId];
+          if (state && state.runId === runId) {
+            delete laneRunStateRef.current[laneId];
+          }
+        }
+      });
+
+      await Promise.all(promises);
+      if (runIdRef.current === runId) {
+        runIdRef.current = null;
+        laneRunStateRef.current = {};
+      }
+    },
+    [
+      lanes,
+      availableModels,
+      apiMode,
+      selectedModelId,
+      geminiApiKey,
+      geminiApiUrl,
+      geminiEnterpriseEnabled,
+      geminiEnterpriseProjectId,
+      geminiEnterpriseLocation,
+      geminiEnterpriseToken,
+      isStreamEnabled,
+      geminiKeyRotationEnabled,
+      geminiKeyPool,
+      getCurrentSessionId,
+      onBackgroundLaneUpdate,
+      openaiApiKey,
+      openaiApiUrl,
+      concurrencyIntervalMs,
+      geminiImageSettings,
+    ]
+  );
+
+  return {
+    lanes,
+    activeLaneId,
+    setActiveLaneId,
+    laneCountInput,
+    updateLaneCount,
+    setAllModels,
+    removeLane,
+    updateModel,
+    handleSend,
+    startNewChat,
+    clearAllChats,
+    confirmAndClearChats,
+    hasStartedChat,
+    setHasStartedChat,
+    cancelQueuedLanes,
+  };
+};
