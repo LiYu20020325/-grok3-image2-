@@ -1545,7 +1545,7 @@ const App: React.FC = () => {
 
   return (
     <>
-    <div className="app-shell flex h-screen bg-white dark:bg-gray-900 overflow-hidden font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div className="app-shell flex h-screen bg-gradient-to-br from-[#f0f4ff] via-[#f5f0ff] to-[#fff0f5] dark:bg-gray-900 overflow-hidden font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
 
       <SettingsModal
         isOpen={isSettingsOpen}
@@ -1658,7 +1658,7 @@ const App: React.FC = () => {
       <div
         className={`app-shell flex-1 flex flex-col h-full transition-all duration-300 ${
           isSidebarOpen ? (isGridMode ? 'md:ml-[340px]' : 'md:ml-[260px]') : ''
-        } relative bg-white dark:bg-gray-900`}
+        } relative bg-transparent dark:bg-gray-900`}
       >
         <TopBar
           language={language}
@@ -1700,7 +1700,7 @@ const App: React.FC = () => {
           }}
         />
 
-        <main className="app-shell flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-gray-900">
+        <main className="app-shell flex-1 overflow-hidden relative flex flex-col bg-transparent dark:bg-gray-900">
           {apiMode === 'gemini' && (
             <GeminiImagePanel
               language={language}
@@ -1715,7 +1715,7 @@ const App: React.FC = () => {
             <EmptyState language={language} onOpenTool={handleOpenTool} />
 	              <div
                   className={`app-input-panel z-20 ${
-                    isInputCollapsed ? 'px-4 py-2 bg-transparent border-transparent' : 'p-4 pb-6 bg-white dark:bg-gray-900'
+                    isInputCollapsed ? 'px-4 py-2 bg-transparent border-transparent' : 'p-4 pb-6'
                   }`}
                 >
                   <ChatInput
@@ -1859,7 +1859,7 @@ const App: React.FC = () => {
 
               <div
                 className={`app-input-panel z-20 ${
-                  isInputCollapsed ? 'px-4 py-2 bg-transparent border-transparent' : 'p-4 pb-6 bg-white dark:bg-gray-900'
+                  isInputCollapsed ? 'px-4 py-2 bg-transparent border-transparent' : 'p-4 pb-6'
                 } ${isFullView ? '' : 'border-t border-gray-100 dark:border-gray-800'}`}
 	              >
                 <ChatInput

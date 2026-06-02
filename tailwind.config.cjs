@@ -32,6 +32,13 @@ module.exports = {
           500: '#10a37f',
           600: '#059669',
         },
+        gradient: {
+          light: {
+            start: '#f0f4ff',
+            middle: '#f5f0ff',
+            end: '#fff0f5',
+          },
+        },
       },
     },
   },

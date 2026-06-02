@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssetKind, Language, Message, Role } from "../types";
-import { Bot, User, ChevronRight } from "lucide-react";
+import { Bot, User, ChevronRight, Copy, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -42,6 +42,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const isUser = message.role === Role.USER;
   const [copiedRemix, setCopiedRemix] = useState(false);
+  const [userCopied, setUserCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [assetDraft, setAssetDraft] = useState<{ kind: AssetKind; src: string; defaultName: string } | null>(null);
@@ -288,6 +289,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       window.setTimeout(() => manualCopyInputRef.current?.select(), 30);
     }
   }, [remixId]);
+
+  const handleCopyUserText = useCallback(async () => {
+    if (!message.text) return;
+    try {
+      await navigator.clipboard.writeText(message.text);
+      setUserCopied(true);
+      setTimeout(() => setUserCopied(false), 1500);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = message.text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setUserCopied(true);
+      setTimeout(() => setUserCopied(false), 1500);
+    }
+  }, [message.text]);
 
   const [videoDownloading, setVideoDownloading] = useState(false);
   const [videoDownloadError, setVideoDownloadError] = useState<string | null>(null);
@@ -706,6 +725,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             >
               {isUser ? renderUserContent() : renderModelContent()}
             </div>
+            {isUser && message.text && (
+              <button
+                onClick={handleCopyUserText}
+                className="mt-1 flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                title="复制文本"
+              >
+                {userCopied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+                <span className={userCopied ? "text-green-400" : ""}>{userCopied ? "已复制" : "复制"}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

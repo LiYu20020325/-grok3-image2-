@@ -73,12 +73,13 @@ export const ChatGridItem: React.FC<ChatGridItemProps> = ({
       onDoubleClick={onDoubleClick}
       className={`
         chat-grid-card
+        jelly-hover
         cursor-pointer
-        bg-white dark:bg-gray-800 
-        border rounded-xl p-4 h-24 flex flex-col justify-center relative group hover:shadow-md transition-all
+        bg-white/50 dark:bg-gray-800 
+        border border-gray-200/50 dark:border-gray-700 rounded-xl p-4 h-24 flex flex-col justify-center relative group hover:shadow-md transition-all
         ${isActive 
-          ? 'border-brand-500 dark:border-brand-500 ring-2 ring-brand-500/20' 
-          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}
+          ? 'border-violet-500 dark:border-violet-500 ring-2 ring-violet-500/20' 
+          : 'border-gray-200/50 dark:border-gray-700 hover:border-violet-300/50 dark:hover:border-violet-700/30'}
       `}
     >
         <div className="flex items-center justify-between mb-2">

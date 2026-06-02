@@ -117,9 +117,9 @@ export const ChatColumn: React.FC<ChatColumnProps> = ({
 
   return (
     <div
-      className={`app-panel flex flex-col h-full bg-white dark:bg-gray-900 ${
+      className={`app-panel flex flex-col h-full bg-transparent dark:bg-gray-900 ${
         isMultiLane
-          ? 'border-r border-gray-200 dark:border-gray-800 min-w-0 w-full'
+          ? 'border-r border-gray-200/50 dark:border-gray-800 min-w-0 w-full'
           : fullWidth
           ? 'w-full'
           : 'w-full max-w-4xl mx-auto'
@@ -128,7 +128,7 @@ export const ChatColumn: React.FC<ChatColumnProps> = ({
       
       {/* Column Header */}
       {showHeader && (
-        <div className="app-panel h-14 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4 bg-white dark:bg-gray-900 sticky top-0 z-10">
+        <div className="app-panel h-14 border-b border-gray-100/50 dark:border-gray-800 flex items-center justify-between px-4 bg-transparent dark:bg-gray-900 sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <div
               className={`p-1.5 rounded-md ${
@@ -159,10 +159,10 @@ export const ChatColumn: React.FC<ChatColumnProps> = ({
               {showPreviewToggle && onTogglePreview && (
                 <button
                   onClick={onTogglePreview}
-                  className={`p-1.5 rounded-md transition-colors ${
+                  className={`jelly-hover p-1.5 rounded-md transition-colors ${
                     isPreviewActive
-                      ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                      : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'text-violet-600 bg-violet-50 dark:bg-violet-900/20'
+                      : 'text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/25'
                   }`}
                   title={isPreviewActive ? 'Exit preview' : 'Full preview'}
                   aria-label={isPreviewActive ? 'Exit preview' : 'Full preview'}

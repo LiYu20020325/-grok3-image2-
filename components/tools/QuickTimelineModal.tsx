@@ -1320,7 +1320,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={t('关闭', 'Close')}
           >
             <X size={18} />
@@ -1346,7 +1346,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                     className={`h-8 px-3 rounded-lg text-xs font-semibold transition-colors ${
                       previewMode === 'clip'
                         ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                     }`}
                   >
                     {t('片段预览', 'Clips')}
@@ -1357,7 +1357,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                     className={`h-8 px-3 rounded-lg text-xs font-semibold transition-colors ${
                       previewMode === 'merged'
                         ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                     }`}
                   >
                     {t('合并预览', 'Merged')}
@@ -1504,7 +1504,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                   type="button"
                   onClick={() => seekPreview(previewTimeSec - 5)}
                   disabled={!previewSrc}
-                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                   aria-label={t('后退 5 秒', 'Back 5s')}
                   title={t('后退 5 秒', 'Back 5s')}
                 >
@@ -1526,7 +1526,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                   type="button"
                   onClick={() => seekPreview(previewTimeSec + 5)}
                   disabled={!previewSrc}
-                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                   aria-label={t('前进 5 秒', 'Forward 5s')}
                   title={t('前进 5 秒', 'Forward 5s')}
                 >
@@ -1551,7 +1551,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setPreviewMuted((v) => !v)}
-                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center justify-center"
+                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center justify-center"
                   aria-label={previewMuted ? t('取消静音', 'Unmute') : t('静音', 'Mute')}
                   title={previewMuted ? t('取消静音', 'Unmute') : t('静音', 'Mute')}
                 >
@@ -1562,7 +1562,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
                   type="button"
                   onClick={() => void togglePreviewFullscreen()}
                   disabled={!previewSrc}
-                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                  className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                   aria-label={isPreviewFullscreen ? t('退出全屏', 'Exit fullscreen') : t('全屏', 'Fullscreen')}
                   title={isPreviewFullscreen ? t('退出全屏', 'Exit fullscreen') : t('全屏', 'Fullscreen')}
                 >
@@ -1614,7 +1614,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center gap-2"
+                className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center gap-2"
               >
                 <Plus size={16} />
                 {t('上传视频', 'Upload')}
@@ -1622,7 +1622,7 @@ export const QuickTimelineModal: React.FC<QuickTimelineModalProps> = ({
               <button
                 type="button"
                 onClick={() => setPickerOpen(true)}
-                className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={videoAssets.length === 0}
               >
                 <Library size={16} />

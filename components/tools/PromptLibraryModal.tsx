@@ -372,7 +372,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={language === 'zh' ? '关闭' : 'Close'}
           >
             <X size={18} />
@@ -424,7 +424,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                         className={`w-full text-left px-3 py-2 text-sm ${
                           opt === categoryFilter
                             ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                         }`}
                       >
                         {opt}
@@ -445,7 +445,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                 className={`px-4 h-9 rounded-full text-xs font-semibold border transition-colors ${
                   chipFilter === chip.id
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white/70 dark:bg-gray-800/60 border-gray-200/70 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                    : 'bg-white/70 dark:bg-gray-800/60 border-gray-200/70 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                 }`}
               >
                 {chip.label}
@@ -574,7 +574,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                             <button
                               type="button"
                               onClick={() => copyPrompt(prompt)}
-                              className="h-6 px-2 rounded-full border border-gray-200/70 dark:border-white/10 flex items-center gap-1 hover:bg-gray-100/70 dark:hover:bg-white/5"
+                              className="h-6 px-2 rounded-full border border-gray-200/70 dark:border-white/10 flex items-center gap-1 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
                             >
                               <Copy size={11} />
                               {language === 'zh' ? '复制' : 'Copy'}
@@ -595,7 +595,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                   <button
                     type="button"
                     onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                    className="px-3 h-8 rounded-full border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5"
+                    className="px-3 h-8 rounded-full border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
                     disabled={safePage === 1}
                   >
                     {language === 'zh' ? '上一页' : 'Prev'}
@@ -612,7 +612,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                           className={`h-8 w-8 rounded-full text-xs font-semibold border ${
                             active
                               ? 'bg-blue-600 border-blue-600 text-white'
-                              : 'border-gray-200/70 dark:border-white/10 text-gray-500 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                              : 'border-gray-200/70 dark:border-white/10 text-gray-500 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                           }`}
                         >
                           {page}
@@ -623,7 +623,7 @@ export const PromptLibraryModal: React.FC<PromptLibraryModalProps> = ({ isOpen, 
                   <button
                     type="button"
                     onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                    className="px-3 h-8 rounded-full border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5"
+                    className="px-3 h-8 rounded-full border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
                     disabled={safePage === totalPages}
                   >
                     {language === 'zh' ? '下一页' : 'Next'}

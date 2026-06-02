@@ -236,7 +236,7 @@ export const ImageSlicerModal: React.FC<ImageSlicerModalProps> = ({ isOpen, lang
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={language === 'zh' ? '关闭' : 'Close'}
           >
             <X size={18} />
@@ -258,7 +258,7 @@ export const ImageSlicerModal: React.FC<ImageSlicerModalProps> = ({ isOpen, lang
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
           >
             {language === 'zh' ? '上传图片' : 'Upload'}
           </button>
@@ -308,7 +308,7 @@ export const ImageSlicerModal: React.FC<ImageSlicerModalProps> = ({ isOpen, lang
           <button
             type="button"
             onClick={() => setLines([])}
-            className="px-3 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 flex items-center gap-2"
+            className="px-3 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-sm text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 flex items-center gap-2"
           >
             <Trash2 size={14} />
             {language === 'zh' ? '清空辅助线' : 'Clear lines'}
@@ -325,7 +325,7 @@ export const ImageSlicerModal: React.FC<ImageSlicerModalProps> = ({ isOpen, lang
             type="button"
             onClick={downloadAll}
             disabled={results.length === 0}
-            className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 disabled:opacity-50"
+            className="px-4 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 disabled:opacity-50"
           >
             {language === 'zh' ? '一键下载' : 'Download all'}
           </button>

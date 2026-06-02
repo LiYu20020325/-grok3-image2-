@@ -36,7 +36,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ items, activeId, langu
           <div
             key={item.id}
             className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
-              isActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
+              isActive ? 'border-violet-500 bg-violet-50/80 dark:bg-violet-900/20' : 'border-gray-200/50 dark:border-gray-800 bg-transparent dark:bg-gray-900'
             }`}
             onClick={() => onSelect(item.id)}
           >
@@ -72,7 +72,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ items, activeId, langu
               <details className="group">
                 <summary className="list-none">
                   <button
-                    className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="jelly-hover p-2 rounded-md text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/25"
                     onClick={(e) => e.preventDefault()}
                   >
                     <MoreHorizontal size={16} />
@@ -80,7 +80,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ items, activeId, langu
                 </summary>
                 <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg z-10">
                   <button
-                    className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="jelly-hover flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
                     onClick={(e) => {
                       e.stopPropagation();
                       startEdit(item);

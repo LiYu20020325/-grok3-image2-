@@ -112,6 +112,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         : language === 'zh'
         ? `多模型(${laneModelIds.length})`
         : `Mixed (${laneModelIds.length})`;
+
+    const firstUserMsg = (() => {
+      for (const lane of (item.lanes ?? [])) {
+        for (const msg of (lane.messages ?? [])) {
+          if (msg.role === 'user' && msg.text && msg.text.trim()) {
+            return msg.text.trim();
+          }
+        }
+      }
+      return '';
+    })();
+    const displayName = firstUserMsg
+      ? firstUserMsg.slice(0, 20) + (firstUserMsg.length > 20 ? '…' : '')
+      : item.name;
+
     const timeLabel = (() => {
       try {
         return new Date(item.updatedAt || item.createdAt).toLocaleString(
@@ -125,11 +140,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div
         key={item.id}
         onClick={() => onSelectHistory(item.id)}
-        className={`relative group flex flex-col gap-1 px-3 py-2 rounded-lg cursor-pointer text-sm border ${
-          isActive
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-gray-900 dark:text-white'
-            : 'border-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-200/40 dark:hover:bg-gray-800/40'
-        }`}
+            className={`card-flow jelly-hover relative group flex flex-col gap-1 px-3 py-2 rounded-lg cursor-pointer text-sm border ${
+              isActive
+                ? 'border-violet-500 bg-violet-50/60 dark:bg-violet-900/20 text-gray-900 dark:text-white'
+                : 'border-transparent text-gray-700 dark:text-gray-200'
+            }`}
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -147,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     setDraftName('');
                   }
                 }}
-                className="w-full bg-white/80 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-white/50 dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700 rounded-md px-2 py-1 text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             ) : (
               <span
@@ -157,7 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   startEdit(item);
                 }}
               >
-                {item.name}
+                {displayName}
               </span>
             )}
             {item.isRunning && (
@@ -167,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
           <button
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="jelly-hover p-1 text-gray-400 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             onClick={(e) => {
               e.stopPropagation();
               setMenuOpenId(isMenuOpen ? null : item.id);
@@ -187,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isMenuOpen && (
           <div className="absolute right-2 top-8 z-20 w-36 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
             <button
-              className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="jelly-hover flex items-center gap-2 w-full px-3 py-2 text-left text-sm hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
               onClick={(e) => {
                 e.stopPropagation();
                 startEdit(item);
@@ -197,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Edit2 size={14} /> {language === 'zh' ? '重命名' : 'Rename'}
             </button>
             <button
-              className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="jelly-hover flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400"
               onClick={(e) => {
                 e.stopPropagation();
                 setDeleteConfirmId(item.id);
@@ -223,7 +238,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       className={`
         app-sidebar fixed inset-y-0 left-0 z-30 
         ${isGridMode ? 'w-[340px]' : 'w-[260px]'} 
-        bg-[#f9fafb] dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 
+        bg-transparent dark:bg-gray-900 border-r border-gray-200/50 dark:border-gray-800 
         transform transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         flex flex-col
@@ -234,7 +249,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <>
             <button
               onClick={() => onStartNewChat()}
-              className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 transition-all text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm group"
+              className="jelly-hover flex-1 flex items-center gap-2 px-3 py-2.5 bg-white/50 dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700 rounded-lg hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 dark:hover:border-violet-700 transition-all text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm group"
             >
               <Plus
                 size={16}
@@ -242,7 +257,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
               <span>{language === 'zh' ? '发起新对话' : 'New Chat'}</span>
             </button>
-            <button onClick={onClose} className="p-2 ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <button onClick={onClose} className="jelly-hover p-2 ml-2 text-gray-400 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400">
               <PanelLeftClose size={20} />
             </button>
           </>
@@ -267,7 +282,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               )}
             </div>
-            <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <button onClick={onClose} className="jelly-hover p-2 text-gray-400 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400">
               <PanelLeftClose size={20} />
             </button>
           </div>
@@ -287,7 +302,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={language === 'zh' ? '搜索历史' : 'Search history'}
-                className="w-full pl-9 pr-3 py-2 bg-transparent hover:bg-gray-200/50 dark:hover:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-800 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-200 dark:focus:ring-gray-700 text-gray-600 dark:text-gray-300 placeholder-gray-400 transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-transparent hover:bg-gray-200/30 dark:hover:bg-gray-800/50 focus:bg-white/50 dark:focus:bg-gray-800 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-200 dark:focus:ring-gray-700 text-gray-600 dark:text-gray-300 placeholder-gray-400 transition-colors"
               />
             </div>
           </div>
@@ -360,12 +375,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
 
-      <div className="p-3 border-t border-gray-200 dark:border-gray-800">
+      <div className="p-3 border-t border-gray-200/50 dark:border-gray-800">
         <button
           onClick={onOpenSettings}
-          className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-200/50 dark:hover:bg-gray-800 cursor-pointer w-full text-left transition-colors"
+          className="jelly-hover flex items-center gap-3 px-2 py-2 rounded-md hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 cursor-pointer w-full text-left transition-colors"
         >
-          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+          <div className="w-8 h-8 rounded-full bg-gray-200/50 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
             <Settings size={18} />
           </div>
           <div className="flex flex-col">
@@ -393,7 +408,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <button
-                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"
+                className="jelly-hover px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 text-sm"
                 onClick={() => setDeleteConfirmId(null)}
               >
                 {language === 'zh' ? '取消' : 'Cancel'}

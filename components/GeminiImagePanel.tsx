@@ -54,7 +54,7 @@ export const GeminiImagePanel: React.FC<GeminiImagePanelProps> = ({
           type="button"
           onClick={() => onChange({ ...settings, enabled: !settings.enabled })}
           className={`h-7 w-12 rounded-full p-1 transition-colors ${
-            settings.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
+            settings.enabled ? 'bg-violet-500' : 'bg-gray-300 dark:bg-gray-700'
           }`}
         >
           <span
@@ -77,7 +77,7 @@ export const GeminiImagePanel: React.FC<GeminiImagePanelProps> = ({
               onClick={() => onChange({ ...settings, resolution: res })}
               className={`h-9 rounded-xl border text-xs font-semibold ${
                 settings.resolution === res
-                  ? 'bg-blue-600 border-blue-600 text-white'
+                  ? 'bg-violet-500 border-violet-500 text-white'
                   : 'bg-white/80 dark:bg-gray-800/60 border-gray-200/70 dark:border-white/10 text-gray-600 dark:text-gray-300'
               }`}
             >
@@ -97,7 +97,7 @@ export const GeminiImagePanel: React.FC<GeminiImagePanelProps> = ({
               onClick={() => onChange({ ...settings, aspectRatio: ratio.value })}
               className={`h-12 rounded-xl border text-[11px] font-semibold flex items-center justify-center ${
                 settings.aspectRatio === ratio.value
-                  ? 'bg-blue-600 border-blue-600 text-white'
+                  ? 'bg-violet-500 border-violet-500 text-white'
                   : 'bg-white/80 dark:bg-gray-800/60 border-gray-200/70 dark:border-white/10 text-gray-600 dark:text-gray-300'
               }`}
             >
@@ -115,7 +115,7 @@ export const GeminiImagePanel: React.FC<GeminiImagePanelProps> = ({
       <button
         type="button"
         onClick={onToggle}
-        className="h-9 w-9 rounded-full border border-gray-200/70 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 text-gray-600 dark:text-gray-300 flex items-center justify-center shadow-md"
+        className="jelly-hover h-9 w-9 rounded-full border border-gray-200/70 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 text-gray-600 dark:text-gray-300 flex items-center justify-center shadow-md"
         aria-label={language === 'zh' ? '绘图设置' : 'Image settings'}
       >
         {isOpen ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}

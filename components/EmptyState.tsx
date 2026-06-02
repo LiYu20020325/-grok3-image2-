@@ -56,8 +56,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ language, onOpenTool }) 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full animate-in fade-in duration-500">
       <div className="mb-12 text-center">
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
-          {language === 'zh' ? '电商人自己的创作AI Agent' : 'How can I help you today?'}
+        <h2 className="text-flow-gradient text-4xl font-bold mb-4 tracking-tight">
+          {language === 'zh' ? '昼夜交互科技' : 'DayNight Interactive Tech'}
         </h2>
       </div>
 
@@ -67,10 +67,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ language, onOpenTool }) 
             key={i}
             onClick={() => card.enabled && onOpenTool(card.id)}
             disabled={!card.enabled}
-            className={`p-5 rounded-2xl text-left transition-colors h-40 flex flex-col justify-between group border ${
+            className={`card-flow jelly-hover p-5 rounded-2xl text-left transition-colors h-40 flex flex-col justify-between group border ${
               card.enabled
-                ? 'bg-gray-100/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200/70 dark:border-gray-700/60 hover:border-gray-300 dark:hover:border-gray-600'
-                : 'bg-gray-100/30 dark:bg-gray-800/30 border-gray-200/50 dark:border-gray-800/60 opacity-60 cursor-default'
+                ? 'bg-white/40 dark:bg-gray-800/50 border-gray-200/70 dark:border-gray-700/60'
+                : 'bg-white/20 dark:bg-gray-800/30 border-gray-200/50 dark:border-gray-800/60 opacity-60 cursor-default'
             }`}
           >
             <div>

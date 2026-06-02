@@ -693,7 +693,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
           <button
             type="button"
             onClick={() => setSidebarCollapsed((prev) => !prev)}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={language === 'zh' ? '切换侧栏' : 'Toggle sidebar'}
           >
             {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -707,7 +707,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={language === 'zh' ? '关闭' : 'Close'}
           >
             <X size={18} />
@@ -771,7 +771,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                       className={`px-3 h-8 text-xs font-semibold ${
                         provider === 'openai'
                           ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                       }`}
                     >
                       OpenAI
@@ -782,7 +782,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                       className={`px-3 h-8 text-xs font-semibold ${
                         provider === 'gemini'
                           ? 'bg-amber-500 text-white'
-                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
                       }`}
                     >
                       Gemini
@@ -816,7 +816,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center gap-2"
+                      className="px-3 h-9 rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-800/60 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center gap-2"
                     >
                       <Upload size={14} />
                       {language === 'zh' ? '上传参考图' : 'Upload'}
@@ -887,7 +887,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                     <button
                       type="button"
                       onClick={() => copyText(outline?.title || '')}
-                      className="h-8 px-3 rounded-lg border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center gap-1"
+                      className="h-8 px-3 rounded-lg border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center gap-1"
                     >
                       <Copy size={12} />
                       {language === 'zh' ? '复制标题' : 'Title'}
@@ -895,7 +895,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                     <button
                       type="button"
                       onClick={() => copyText(outline?.content || '')}
-                      className="h-8 px-3 rounded-lg border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center gap-1"
+                      className="h-8 px-3 rounded-lg border border-gray-200/70 dark:border-white/10 text-xs text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center gap-1"
                     >
                       <Copy size={12} />
                       {language === 'zh' ? '复制正文' : 'Content'}
@@ -1025,7 +1025,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                           <button
                             type="button"
                             onClick={() => copyText(shot.prompt)}
-                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center justify-center gap-1"
+                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center justify-center gap-1"
                           >
                             <Copy size={12} />
                             {language === 'zh' ? '复制' : 'Copy'}
@@ -1033,7 +1033,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleDownloadShot(shot)}
-                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center justify-center gap-1"
+                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center justify-center gap-1"
                           >
                             <Download size={12} />
                             {language === 'zh' ? '下载' : 'Download'}
@@ -1096,7 +1096,7 @@ export const PddLabModal: React.FC<PddLabModalProps> = ({
                               })();
                             }}
                             disabled={isGeneratingImages}
-                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center justify-center"
+                            className="flex-1 h-8 rounded-lg border border-gray-200/70 dark:border-white/10 text-[11px] text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center justify-center"
                           >
                             {language === 'zh' ? '重绘' : 'Refresh'}
                           </button>

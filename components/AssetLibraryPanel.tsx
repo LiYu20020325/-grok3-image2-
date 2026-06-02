@@ -51,7 +51,7 @@ export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({ language, 
             onToast?.(t('已清空', 'Cleared'));
           }}
           disabled={stats.total <= 0}
-          className="h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {t('清空', 'Clear')}
         </button>
@@ -73,7 +73,7 @@ export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({ language, 
               className={`h-9 px-3 rounded-xl text-sm font-semibold border transition-colors inline-flex items-center gap-2 ${
                 filter === tab.id
                   ? 'bg-gray-200 dark:bg-gray-700 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white'
-                  : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                  : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400'
               }`}
             >
               {tab.icon}
@@ -123,7 +123,7 @@ export const AssetLibraryPanel: React.FC<AssetLibraryPanelProps> = ({ language, 
                     <button
                       type="button"
                       onClick={() => setRenaming(asset)}
-                      className="h-9 w-9 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5 inline-flex items-center justify-center"
+                      className="h-9 w-9 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 inline-flex items-center justify-center"
                       title={t('重命名', 'Rename')}
                       aria-label={t('重命名', 'Rename')}
                     >

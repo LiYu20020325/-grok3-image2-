@@ -50,7 +50,7 @@ export const AssetNameModal: React.FC<AssetNameModalProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="jelly-hover h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/25"
             aria-label={t('关闭', 'Close')}
           >
             <X size={18} />
@@ -84,7 +84,7 @@ export const AssetNameModal: React.FC<AssetNameModalProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+              className="jelly-hover h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             >
               {t('取消', 'Cancel')}
             </button>
@@ -92,7 +92,7 @@ export const AssetNameModal: React.FC<AssetNameModalProps> = ({
               type="button"
               onClick={() => onConfirm(value.trim())}
               disabled={!canConfirm}
-              className="h-10 px-5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="jelly-hover h-10 px-5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {confirmText || t('保存', 'Save')}
             </button>

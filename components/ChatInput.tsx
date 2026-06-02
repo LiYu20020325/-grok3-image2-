@@ -640,10 +640,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => onSelectLane?.(item.id)}
-                  className={`h-7 w-8 text-[9px] font-semibold rounded-md border transition-colors flex items-center gap-0.5 px-0.5 ${
+                  className={`ripple ripple-purple h-7 w-8 text-[9px] font-semibold rounded-md border transition-colors flex items-center gap-0.5 px-0.5 ${
                     item.isActive
-                      ? 'bg-blue-600 border-blue-600 text-white'
-                      : 'bg-white/60 dark:bg-gray-900/40 border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                      ? 'bg-purple-500 border-purple-500 text-white'
+                      : 'bg-white/60 dark:bg-gray-900/40 border-gray-200/70 dark:border-white/10 text-gray-700 dark:text-gray-200'
                   }`}
                   title={item.label || String(idx + 1)}
                 >
@@ -666,7 +666,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <button
             type="button"
             onClick={() => setCollapsed(false)}
-            className="h-12 w-12 flex flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-200/70 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 text-gray-700 dark:text-gray-200 text-[9px] font-semibold hover:bg-gray-100/70 dark:hover:bg-white/5 transition-colors"
+            className="collapse-open-btn"
             title={language === 'zh' ? '打开输入栏' : 'Show input'}
             aria-label={language === 'zh' ? '打开输入栏' : 'Show input'}
           >
@@ -703,26 +703,20 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         )}
 
         <div
-          className="relative rounded-[24px] p-[1px] bg-gradient-to-br from-blue-500/35 via-slate-500/10 to-emerald-500/25 shadow-[0_18px_50px_-30px_rgba(0,0,0,0.7)]"
+          className="input-flow-border"
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
           <div
-            className={`relative rounded-[23px] bg-white/80 text-gray-900 backdrop-blur-xl border shadow-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-blue-500/20 ${
-              isExpanded ? 'min-h-[320px]' : 'min-h-[88px]'
-            } ${
-              isDragging
-                ? 'border-blue-500 ring-2 ring-blue-500/30 dark:bg-blue-900/20'
-                : 'border-gray-200/80 dark:bg-[#0b1220]/75 dark:text-gray-100 dark:border-white/10'
-            }`}
+            className={`input-box ${isExpanded ? 'min-h-[320px]' : ''} ${isDragging ? 'dragging' : ''}`}
           >
             {isDragging && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                <div className="flex flex-col items-center gap-2 px-6 py-4 rounded-2xl bg-blue-500/10 backdrop-blur-sm">
-                  <ImageIcon size={32} className="text-blue-500" />
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              <div className="drag-overlay active">
+                <div className="drag-overlay-content">
+                   <ImageIcon size={32} />
+                   <span>
                     {language === 'zh' ? '松开以上传图片' : 'Drop images here'}
                   </span>
                 </div>
@@ -747,7 +741,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     ? '输入问题…（Enter 发送，Shift+Enter 换行）'
                     : 'Ask anything… (Enter to send, Shift+Enter for newline)'
                 }
-                className={`w-full bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500/70 dark:placeholder-gray-400/60 text-base resize-none focus:outline-none rounded-2xl px-3 py-2.5 border border-transparent focus:border-blue-500/25 focus:bg-white/60 dark:focus:bg-white/5 transition-colors ${
+                className={`w-full bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500/70 dark:placeholder-gray-400/60 text-base resize-none focus:outline-none rounded-2xl px-3 py-2.5 border border-transparent focus:border-violet-500/25 focus:bg-white/60 dark:focus:bg-white/5 transition-colors ${
                   isExpanded ? 'min-h-[220px]' : 'min-h-[56px]'
                 } ${inputDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
                 rows={isExpanded ? 10 : 3}
@@ -781,7 +775,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         const badgeClass =
                           item.kind === 'role'
                             ? 'border-emerald-500/20 text-emerald-700 dark:text-emerald-200 bg-emerald-500/10'
-                            : 'border-indigo-500/20 text-indigo-700 dark:text-indigo-200 bg-indigo-500/10';
+                            : 'border-violet-500/20 text-violet-700 dark:text-violet-200 bg-violet-500/10';
                         return (
                           <button
                             key={item.id}
@@ -793,7 +787,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                             }}
                             className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl text-left transition-colors border ${
                               isActive
-                                ? 'bg-blue-500/10 border-blue-500/20'
+                                ? 'bg-violet-500/10 border-violet-500/20'
                                 : 'border-transparent hover:bg-gray-100/70 dark:hover:bg-white/5'
                             }`}
                           >
@@ -847,9 +841,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                       fileInputRef.current?.click();
                     }}
                     disabled={inputDisabled}
-                    className={`h-9 w-9 inline-flex items-center justify-center rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 transition-colors text-gray-700 dark:text-gray-200 ${
-                      inputDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100/70 dark:hover:bg-white/5'
-                    }`}
+                    className={`input-action-btn ${inputDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                     aria-label={language === 'zh' ? '上传图片' : 'Upload image'}
                   >
                     <Plus size={18} />
@@ -867,7 +859,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsToolMenuOpen((prev) => !prev)}
-                      className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/60 dark:bg-gray-900/40 hover:bg-gray-100/70 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-gray-200"
+                      className="input-action-btn-teal"
                       aria-label={language === 'zh' ? '工具' : 'Tools'}
                     >
                       <SlidersHorizontal size={18} />
@@ -893,10 +885,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                               onOpenTool(item.id);
                               setIsToolMenuOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                            className={`ripple ripple-purple w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
                               item.disabled
                                 ? 'text-gray-400 cursor-default'
-                                : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                                : 'text-gray-700 dark:text-gray-200'
                             }`}
                           >
                             <item.icon size={16} />
@@ -927,11 +919,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <button
                     type="button"
                     onClick={onToggleLaneLock}
-                    className={`h-8 w-8 inline-flex items-center justify-center rounded-lg border transition-colors ${
-                      laneLocked
-                        ? 'bg-gray-800 text-white border-gray-700 dark:bg-blue-600 dark:border-blue-500'
-                        : 'bg-white/70 dark:bg-gray-800/60 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
+                    className={`input-action-btn-amber ${laneLocked ? 'active' : ''}`}
                     title={
                       language === 'zh'
                         ? laneLocked
@@ -977,9 +965,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     type="button"
                     onClick={() => setImagePickerOpen(true)}
                     disabled={!canPickLibraryImage}
-                  className={`h-10 inline-flex items-center gap-2 px-4 rounded-xl border text-sm font-semibold transition-colors ${
+                  className={`ripple ripple-lime h-10 inline-flex items-center gap-2 px-4 rounded-xl border text-sm font-semibold transition-colors ${
                     canPickLibraryImage
-                      ? 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                      ? 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10'
                       : 'bg-gray-200/80 dark:bg-white/5 text-gray-400 border-gray-200/60 dark:border-white/10 cursor-not-allowed'
                   }`}
                     aria-label={language === 'zh' ? '从素材库选取图片' : 'Pick image from library'}
@@ -1003,10 +991,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                       type="button"
                       onClick={onToggleKeyRotation}
                       aria-pressed={Boolean(keyRotationEnabled)}
-                      className={`h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
+                      className={`ripple ripple-orange h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
                         keyRotationEnabled
-                          ? 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                          ? 'bg-orange-500 border-orange-500 text-white'
+                          : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10'
                       }`}
                       title={
                         language === 'zh'
@@ -1027,10 +1015,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 	                  <button
 	                    type="button"
 	                    onClick={onToggleEnterpriseEnabled}
-	                    className={`h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
+	                    className={`ripple ripple-indigo h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
 	                      enterpriseEnabled
-	                        ? 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700'
-	                        : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10 hover:bg-gray-100/70 dark:hover:bg-white/5'
+	                        ? 'bg-indigo-500 border-indigo-500 text-white'
+	                        : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10'
 	                    }`}
 	                    title={
 	                      language === 'zh'
@@ -1055,10 +1043,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                       type="button"
                       onClick={onBulkDownload}
                       disabled={bulkDownloadDisabled || bulkDownloadLoading}
-                      className={`h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
+                      className={`ripple ripple-emerald h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors ${
                         bulkDownloadDisabled || bulkDownloadLoading
                           ? 'bg-gray-200/80 dark:bg-white/5 text-gray-400 border-gray-200/60 dark:border-white/10 cursor-not-allowed'
-                          : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10 hover:bg-gray-100/70 dark:hover:bg-white/5'
+                          : 'bg-white/60 dark:bg-gray-900/40 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-white/10'
                       }`}
                       title={
                         bulkDownloadLoading
@@ -1090,7 +1078,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     <button
                       type="button"
                       onClick={onStopQueue}
-                      className="h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors bg-red-600 border-red-600 text-white hover:bg-red-700"
+                      className="ripple ripple-red h-9 inline-flex items-center gap-2 px-3 rounded-xl border text-xs font-semibold transition-colors bg-red-600 border-red-600 text-white hover:bg-red-700"
                       title={language === 'zh' ? '终止后续排队' : 'Stop queued lanes'}
                     >
                       <X size={14} />
@@ -1100,7 +1088,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsExpanded((v) => !v)}
-                    className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/40 dark:bg-gray-900/30 hover:bg-gray-100/60 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-gray-200"
+                    className="input-action-btn-purple"
                     title={
                       language === 'zh'
                         ? isExpanded
@@ -1116,7 +1104,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   <button
                     type="button"
                     onClick={() => setCollapsed(true)}
-                    className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-gray-200/70 dark:border-white/10 bg-white/40 dark:bg-gray-900/30 hover:bg-gray-100/60 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-gray-200"
+                    className="input-action-btn-rose"
                     title={language === 'zh' ? '收起输入栏' : 'Collapse input'}
                     aria-label={language === 'zh' ? '收起输入栏' : 'Collapse input'}
                   >
@@ -1127,10 +1115,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     type="button"
                     onClick={handleTriggerSend}
                     disabled={inputDisabled || (!promptInput.trim() && selectedImages.length === 0) || isGenerating}
-                    className={`h-10 w-10 rounded-full inline-flex items-center justify-center border transition-all duration-200 ${
+                    className={`send-btn ${
                       !inputDisabled && (promptInput.trim() || selectedImages.length > 0) && !isGenerating
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/40 shadow-md hover:from-blue-700 hover:to-indigo-700'
-                        : 'bg-gray-200/80 dark:bg-white/5 text-gray-400 border-gray-200/60 dark:border-white/10 cursor-not-allowed opacity-70'
+                        ? 'active'
+                        : 'disabled'
                     }`}
                     aria-label={language === 'zh' ? '发送' : 'Send'}
                     title={language === 'zh' ? '发送' : 'Send'}

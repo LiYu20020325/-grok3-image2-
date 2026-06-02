@@ -63,7 +63,7 @@ export const AssetPickerModal: React.FC<AssetPickerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/5"
+            className="h-9 w-9 rounded-xl border border-gray-200/70 dark:border-white/10 flex items-center justify-center text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400"
             aria-label={t('关闭', 'Close')}
           >
             <X size={18} />
@@ -101,7 +101,7 @@ export const AssetPickerModal: React.FC<AssetPickerModalProps> = ({
                   key={asset.id}
                   type="button"
                   onClick={() => onPick(asset)}
-                  className="text-left rounded-2xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-900/50 hover:bg-gray-100/70 dark:hover:bg-white/5 transition-colors overflow-hidden"
+                  className="text-left rounded-2xl border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-900/50 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/25 dark:hover:text-violet-400 transition-colors overflow-hidden"
                 >
                   <div className="h-32 bg-black/5 dark:bg-black/40 border-b border-gray-200/50 dark:border-white/10 overflow-hidden flex items-center justify-center">
                     {asset.kind === 'image' ? (
